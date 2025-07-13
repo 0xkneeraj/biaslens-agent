@@ -1,4 +1,5 @@
 from google.genai import types
+import traceback
 
 # Dummy display_state function (replace with actual implementation or import if available)
 def display_state(session_service, session_id, user_id, label):
@@ -34,6 +35,9 @@ async def process_agent_response(event):
                     f" DEBUG: Agent generated code result: {part.code_excutable_result.outcome}"
                 )
                 has_specific_parts = True
+            elif hasattr(part, "function_call") and part.function_call:
+                print(f" DEBUG: Agent generated function call: {part.function_call}")
+                
             elif hasattr(part, "tool-response") and part.tool_response:
                 # print the tool response
                 print(
@@ -89,6 +93,7 @@ async def call_agent_async(runner, session_id, user_input, user_id):
                 final_response_text = response
     except Exception as e:
         print(f"Error during agent processing: {e}")
+        traceback.print_exc()
 
 
     # Display state after processing

@@ -5,7 +5,9 @@ from google.adk.runners import Runner
 from google.adk.sessions import DatabaseSessionService, Session
 from google.genai import types
 from agent import meetingReminder
+from memory_agent import memory_agent
 from utils import call_agent_async
+
 
 load_dotenv()
 
@@ -50,7 +52,7 @@ async def main():
 
     # create a runner
     runner= Runner(
-        agent = meetingReminder,
+        agent = memory_agent, #2  meetingReminder,
         app_name=APP_NAME,
         session_service=session_service,
     )
@@ -63,18 +65,21 @@ async def main():
         user_input = input("You: ")
 
         # check if user wants to exit
-        if user_input: 
+        if user_input:
             if user_input.lower() == 'exit':
                 print("Exiting the meeting reminder agent. Goodbye!")
                 break
 
             # call the agent asynchronously
-            await call_agent_async(
-                runner=runner,
-                session_id = session.id,
-                user_input=user_input,
-                user_id=USER_ID
-            )
+            try:
+                await call_agent_async(
+                    runner=runner,
+                    session_id=session.id,
+                    user_input=user_input,
+                    user_id=USER_ID
+                )
+            except Exception as e:
+                print(f"Error during agent : {e}")
     
 
 if __name__ == "__main__":
